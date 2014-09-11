@@ -213,7 +213,14 @@ class BaseClient(object):
         # Send it all in one packet
         aux = bytearray(buff)
         aux.extend(out)
-        self.socket.send(aux)
+        bytes_to_send = len(aux)
+	    bytes_sent = 0
+		#Added to ensure everything was send in the message.
+		while bytes_sent < bytes_to_send:
+		    current_send_count = self.socket.send(aux[bytes_sent:])
+		    if not current_send_count:
+                raise common.ServerDisconnect('Server send disconnect')
+			bytes_sent += curennt_send_count
 
         # 5. (optional) write attached value if any
         send_op = getattr(value, "send", None)
